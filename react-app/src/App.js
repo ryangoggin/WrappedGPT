@@ -15,6 +15,9 @@ function App() {
 
   return (
     <>
+      <h1 class="text-3xl font-bold underline">
+        Wrapped GPT
+      </h1>
       <Navigation isLoaded={isLoaded} />
       {isLoaded && (
         <Switch>
