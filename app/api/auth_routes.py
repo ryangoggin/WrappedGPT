@@ -1,8 +1,13 @@
-from flask import Blueprint, jsonify, session, request
+from flask import Blueprint, jsonify, session, request, redirect
 from app.models import User, db
 from app.forms import LoginForm
 from app.forms import SignUpForm
 from flask_login import current_user, login_user, logout_user, login_required
+import random
+import urllib.parse
+import os
+
+redirect_uri = "http://localhost:3000/auth/callback"
 
 auth_routes = Blueprint('auth', __name__)
 
@@ -17,6 +22,19 @@ def validation_errors_to_error_messages(validation_errors):
             errorMessages.append(f'{field} : {error}')
     return errorMessages
 
+def generate_random_string(length):
+    """
+    generate a random string for the state in spotify login
+    """
+    chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    char_list = list(chars)
+    string = ""
+
+    for i in range(length):
+        string += random.choice(char_list)
+
+    return string
+
 
 @auth_routes.route('/')
 def authenticate():
@@ -26,6 +44,28 @@ def authenticate():
     if current_user.is_authenticated:
         return current_user.to_dict()
     return {'errors': ['Unauthorized']}
+
+
+@auth_routes.route('/spotifylogin')
+def login_to_spotify():
+    """
+    Initiate authorization request
+    """
+    state = generate_random_string(16)
+    scope = 'user-read-private user-reada-email'
+
+    params = {
+        "response_type": 'code',
+        "client_id": os.environ.get('CLIENT_ID'),
+        "scope": scope,
+        "redirect_uri": redirect_uri,
+        "state": state
+    }
+
+    query_string = urllib.parse.urlencode(params)
+    auth_url = 'https://accounts.spotify.com/authorize?' + query_string
+
+    return redirect(auth_url)
 
 
 @auth_routes.route('/login', methods=['POST'])
