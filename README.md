@@ -1,6 +1,6 @@
-# Flask React Project
+# Wrapped GPT
 
-This is the starter for the Flask React project.
+Wrapped GPT is a full stack app made with a JS (React and Redux) frontend and Python (Flask and SQLAlchemy) backend. This web app uses Spotify's API in conjunction with Open AI's API to give users more control of their Spotify Wrapped before it is released at the end of the year. Users can see their top artists and songs at that current moment, generate similar artists and songs to their top artists and songs for more music variety, and generate artists and songs to try and get a certain Music Listening Personality.
 
 ## Getting started
 1. Clone this repository (only this branch)
