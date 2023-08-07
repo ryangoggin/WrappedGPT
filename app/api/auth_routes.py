@@ -6,8 +6,12 @@ from flask_login import current_user, login_user, logout_user, login_required
 import random
 import urllib.parse
 import os
+import requests
+import base64
 
 redirect_uri = "http://localhost:3000/auth/callback"
+client_id = os.environ.get('CLIENT_ID')
+client_secret = os.environ.get('CLIENT_SECRET')
 
 auth_routes = Blueprint('auth', __name__)
 
@@ -49,23 +53,65 @@ def authenticate():
 @auth_routes.route('/spotifylogin')
 def login_to_spotify():
     """
-    Initiate authorization request
+    Initiate authorization request to Spotify.
     """
     state = generate_random_string(16)
     scope = 'user-read-private user-reada-email'
 
+    # these params are explained in the spotify API docs
     params = {
         "response_type": 'code',
-        "client_id": os.environ.get('CLIENT_ID'),
+        "client_id": client_id,
         "scope": scope,
         "redirect_uri": redirect_uri,
         "state": state
     }
 
+    # convert the object to the query string: "key=value,etc..."
     query_string = urllib.parse.urlencode(params)
     auth_url = 'https://accounts.spotify.com/authorize?' + query_string
 
     return redirect(auth_url)
+
+
+@auth_routes.route('/callback')
+def spotify_callback():
+    """
+    Callback that implements the Access Token request
+    """
+    code = request.args.get('code', None)
+    state = request.arg.get('state', None)
+
+    # confirm the state matches to avoid attacks such as cross-site requst forgery (CSRF)
+    if state is None:
+        return redirect('/#' + urllib.parse.urlencode({"error": 'state_mismatch'}))
+    else:
+        auth_options = {
+            "url": 'https://accounts.spotify.com/api/token',
+            "data": {
+                "code": code,
+                "redirect_uri": redirect_uri,
+                "grant_type": 'authorization_code'
+            },
+            "headers": {
+                'Authorization': 'Basic ' + base64.b64encode((client_id + ':' + client_secret).encode()).decode(),
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "json": True
+        }
+
+        # Make a POST request to exchange the authorization code for an access token
+        response = requests.post(auth_options['url'], data=auth_options['data'], headers=auth_options['headers'])
+        token_data = response.json()
+
+        # token data should have the following form:
+        # {
+        # "access_token": "NgCXRK...MzYjw",
+        # "token_type": "Bearer",
+        # "scope": "user-read-private user-read-email",
+        # "expires_in": 3600,
+        # "refresh_token": "NgAagA...Um_SHo"
+        # }
 
 
 @auth_routes.route('/login', methods=['POST'])
