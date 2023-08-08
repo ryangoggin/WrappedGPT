@@ -92,6 +92,14 @@ export const signUp = (username, email, password) => async (dispatch) => {
 	}
 };
 
+export const spotifyLogin = () => async (dispatch) => {
+	const response = await fetch("/api/auth/spotifylogin", {
+		headers: {
+			"Content-Type": "application/json",
+		},
+	});
+}
+
 const initialState = { user: null };
 
 export default function reducer(state = initialState, action) {
