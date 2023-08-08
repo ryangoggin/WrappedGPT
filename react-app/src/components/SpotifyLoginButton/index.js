@@ -7,7 +7,7 @@ function SpotifyLoginButton() {
 
     const handleClick = async(e) => {
         e.preventDefault();
-        await dispatch(spotifyLogin);
+        await dispatch(spotifyLogin());
     }
 
     return (

@@ -99,7 +99,15 @@ export const signUp = (username, email, password) => async (dispatch) => {
 };
 
 export const spotifyLogin = () => async (dispatch) => {
-	await fetch("/api/auth/spotifylogin");
+	await fetch("/api/auth/spotifylogin")
+		.then(response => {
+			if (!response.ok) {
+			throw new Error(response.statusText);
+			}
+			return response.json();
+		}).catch(err=>{
+		console.log(err);
+		});
 	dispatch(spotifyAuth());
 }
 
@@ -111,6 +119,8 @@ export default function reducer(state = initialState, action) {
 			return { user: action.payload, spotifyAuthNum: null };
 		case REMOVE_USER:
 			return { user: null, spotifyAuthNum: null };
+		case SPOTIFY_AUTH:
+			return { user: state.user, spotifyAuthNum: action.payload}
 		default:
 			return state;
 	}
