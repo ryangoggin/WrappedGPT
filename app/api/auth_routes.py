@@ -56,7 +56,7 @@ def login_to_spotify():
     Initiate authorization request to Spotify.
     """
     state = generate_random_string(16)
-    scope = 'user-read-private user-reada-email'
+    scope = 'user-read-private user-read-email'
 
     # these params are explained in the spotify API docs
     params = {
