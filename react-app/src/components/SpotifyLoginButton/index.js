@@ -7,6 +7,11 @@ function SpotifyLoginButton() {
     const handleClick = async(e) => {
         e.preventDefault();
         // need to make thunk to request spotify authorization
+        /*
+        in the thunk:
+        add another kv pair to session store for the access token
+        or maybe store in local storage
+        */
     }
 
     return (
