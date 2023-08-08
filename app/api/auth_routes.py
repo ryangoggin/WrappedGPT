@@ -70,6 +70,7 @@ def login_to_spotify():
     # convert the object to the query string: "key=value,etc..."
     query_string = urllib.parse.urlencode(params)
     auth_url = 'https://accounts.spotify.com/authorize?' + query_string
+    print(auth_url)
 
     return redirect(auth_url)
 

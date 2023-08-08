@@ -5,6 +5,7 @@ import SignupFormPage from "./components/SignupFormPage";
 import LoginFormPage from "./components/LoginFormPage";
 import { authenticate } from "./store/session";
 import Navigation from "./components/Navigation";
+import SpotifyLoginButton from "./components/SpotifyLoginButton";
 
 function App() {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ function App() {
       <h1 class="text-3xl font-bold underline">
         Wrapped GPT
       </h1>
+      <SpotifyLoginButton />
       <Navigation isLoaded={isLoaded} />
       {isLoaded && (
         <Switch>
