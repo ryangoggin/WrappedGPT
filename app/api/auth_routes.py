@@ -77,7 +77,7 @@ def login_to_spotify():
 @auth_routes.route('/callback')
 def spotify_callback():
     """
-    Callback that implements the Access Token request
+    Callback that implements the Access Token request (lasts for 60 minutes)
     """
     code = request.args.get('code', None)
     state = request.arg.get('state', None)
@@ -112,6 +112,51 @@ def spotify_callback():
         # "expires_in": 3600,
         # "refresh_token": "NgAagA...Um_SHo"
         # }
+
+        return jsonify(token_data)
+
+
+@auth_routes.route('/refresh_token')
+def refresh_token():
+    """
+    Refreshes the token (will need to be done after 60 minutes)
+    """
+    refresh_token = request.args.get('refresh_token')
+
+    auth_options = {
+        "url": 'https://accounts.spotify.com/api/token',
+        "headers": {
+            "Authorization": 'Basic ' + base64.b64encode((client_id + ':' + client_secret).encode()).decode(),
+        },
+        "data": {
+            "grant_type": 'refresh_token',
+            "refresh_token": refresh_token
+        },
+        "json": True
+    }
+
+    # Make a POST request to refresh the access token
+    response = requests.post(auth_options['url'], data=auth_options['data'], headers=auth_options['headers'])
+    token_data = response.json()
+
+    # token data should have the following form:
+    # {
+    # "access_token": "NgA6ZcYI...ixn8bUQ",
+    # "token_type": "Bearer",
+    # "scope": "user-read-private user-read-email",
+    # "expires_in": 3600
+    # }
+
+    if response.status_code == 200:
+        access_token = token_data.get('access_token')
+        return jsonify({
+            "access_token": access_token
+        })
+    else:
+        return jsonify({
+            "error": 'refresh token failed',
+            "status_code": response.status_code
+        })
 
 
 @auth_routes.route('/login', methods=['POST'])
