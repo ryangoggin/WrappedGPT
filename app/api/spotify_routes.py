@@ -5,7 +5,7 @@ import os
 import requests
 import base64
 
-redirect_uri = "http://localhost:3000/spotify/callback"
+redirect_uri = "http://localhost:3000/api/spotify/callback"
 client_id = os.environ.get('CLIENT_ID')
 client_secret = os.environ.get('CLIENT_SECRET')
 
