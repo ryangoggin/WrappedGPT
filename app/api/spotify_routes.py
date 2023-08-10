@@ -48,7 +48,7 @@ def login_to_spotify():
     auth_url = 'https://accounts.spotify.com/authorize?' + query_string
     print(auth_url)
 
-    return auth_url
+    return redirect(auth_url)
 
 
 @spotify_routes.route('/callback')
@@ -90,6 +90,7 @@ def spotify_callback():
         # "refresh_token": "NgAagA...Um_SHo"
         # }
 
+        print(token_data)
         return jsonify(token_data)
 
 

@@ -1,5 +1,5 @@
 import { useDispatch } from 'react-redux';
-import { spotifyLogin } from "../../store/session";
+import { spotifyLogin } from "../../store/spotify";
 import './SpotifyLoginButton.css';
 import { useEffect, useState } from 'react';
 
