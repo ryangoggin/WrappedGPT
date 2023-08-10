@@ -1,7 +1,6 @@
 // constants
 const SET_USER = "session/SET_USER";
 const REMOVE_USER = "session/REMOVE_USER";
-const SPOTIFY_AUTH = "session/SPOTIFY_AUTH";
 
 const setUser = (user) => ({
 	type: SET_USER,
@@ -10,11 +9,6 @@ const setUser = (user) => ({
 
 const removeUser = () => ({
 	type: REMOVE_USER,
-});
-
-const spotifyAuth = () => ({
-	type: SPOTIFY_AUTH,
-	payload: Math.floor(Math.random()*100000),
 });
 
 export const authenticate = () => async (dispatch) => {
@@ -98,29 +92,14 @@ export const signUp = (username, email, password) => async (dispatch) => {
 	}
 };
 
-export const spotifyLogin = () => async (dispatch) => {
-	await fetch("/api/spotify/login")
-		.then(response => {
-			if (!response.ok) {
-			throw new Error(response.statusText);
-			}
-			return response.json();
-		}).catch(err=>{
-		console.log(err);
-		});
-	dispatch(spotifyAuth());
-}
-
-const initialState = { user: null, spotifyAuthNum: null };
+const initialState = { user: null };
 
 export default function reducer(state = initialState, action) {
 	switch (action.type) {
 		case SET_USER:
-			return { user: action.payload, spotifyAuthNum: null };
+			return { user: action.payload };
 		case REMOVE_USER:
-			return { user: null, spotifyAuthNum: null };
-		case SPOTIFY_AUTH:
-			return { user: state.user, spotifyAuthNum: action.payload}
+			return { user: null };
 		default:
 			return state;
 	}

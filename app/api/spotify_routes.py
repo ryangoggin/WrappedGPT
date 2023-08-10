@@ -48,7 +48,7 @@ def login_to_spotify():
     auth_url = 'https://accounts.spotify.com/authorize?' + query_string
     print(auth_url)
 
-    return redirect(auth_url)
+    return auth_url
 
 
 @spotify_routes.route('/callback')
