@@ -99,7 +99,7 @@ export const signUp = (username, email, password) => async (dispatch) => {
 };
 
 export const spotifyLogin = () => async (dispatch) => {
-	await fetch("/api/auth/spotifylogin")
+	await fetch("/api/spotify/login")
 		.then(response => {
 			if (!response.ok) {
 			throw new Error(response.statusText);
