@@ -4,10 +4,12 @@ import urllib.parse
 import os
 import requests
 import base64
+import datetime
 
-redirect_uri = "http://localhost:3000/api/spotify/callback"
-client_id = os.environ.get('CLIENT_ID')
-client_secret = os.environ.get('CLIENT_SECRET')
+REDIRECT_URI = "http://localhost:3000/api/spotify/callback"
+CLIENT_ID = os.environ.get('CLIENT_ID')
+CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+API_BASE_URL = "https://api.spotify.com/v1/"
 
 spotify_routes = Blueprint('spotify', __name__)
 
@@ -37,10 +39,11 @@ def login_to_spotify():
     # these params are explained in the spotify API docs
     params = {
         "response_type": 'code',
-        "client_id": client_id,
+        "client_id": CLIENT_ID,
         "scope": scope,
-        "redirect_uri": redirect_uri,
-        "state": state
+        "redirect_uri": REDIRECT_URI,
+        "state": state,
+        "show_dialog": True #for testing so can get the login over and over, remove when done testing
     }
 
     # convert the object to the query string: "key=value,etc..."
@@ -56,6 +59,9 @@ def spotify_callback():
     """
     Callback that implements the Access Token request (lasts for 60 minutes)
     """
+    if "error" in request.args:
+        return jsonify({"error": request.args["error"]})
+
     code = request.args.get('code', None)
     state = request.arg.get('state', None)
 
@@ -67,11 +73,11 @@ def spotify_callback():
             "url": 'https://accounts.spotify.com/api/token',
             "data": {
                 "code": code,
-                "redirect_uri": redirect_uri,
+                "redirect_uri": REDIRECT_URI,
                 "grant_type": 'authorization_code'
             },
             "headers": {
-                'Authorization': 'Basic ' + base64.b64encode((client_id + ':' + client_secret).encode()).decode(),
+                'Authorization': 'Basic ' + base64.b64encode((CLIENT_ID + ':' + CLIENT_SECRET).encode()).decode(),
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             "json": True
@@ -91,7 +97,12 @@ def spotify_callback():
         # }
 
         print(token_data)
-        return jsonify(token_data)
+
+        session['access_token'] = token_data['access_token']
+        session['refresh_token'] = token_data['refresh_token']
+        session['expires_at'] = datetime.now().timestamp() + token_data['expires_in']
+
+        return redirect("/profile")
 
 
 @spotify_routes.route('/refresh_token')
@@ -135,3 +146,23 @@ def refresh_token():
             "error": 'refresh token failed',
             "status_code": response.status_code
         })
+
+
+@spotify_routes.route('/profile')
+def get_profile():
+    """
+    Get the Spotify user's profile info to display.
+    """
+    # if no access token in session, login again
+    if "access_token" not in session:
+        return redirect("/login")
+
+    # check if access token has expired
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect("/refresh_token")
+
+    headers = {
+        "Authorization": f"Bearer: {session['access_token']}"
+    }
+
+    response = requests.get(API_BASE_URL + 'me')
