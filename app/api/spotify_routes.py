@@ -59,11 +59,12 @@ def spotify_callback():
     """
     Callback that implements the Access Token request (lasts for 60 minutes)
     """
+    print("start of callback")
     if "error" in request.args:
         return jsonify({"error": request.args["error"]})
 
     code = request.args.get('code', None)
-    state = request.arg.get('state', None)
+    state = request.args.get('state', None)
 
     # confirm the state matches to avoid attacks such as cross-site requst forgery (CSRF)
     if state is None:
@@ -80,8 +81,10 @@ def spotify_callback():
                 'Authorization': 'Basic ' + base64.b64encode((CLIENT_ID + ':' + CLIENT_SECRET).encode()).decode(),
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            "json": True
+            # "json": True
         }
+
+        print("should be getting a token?")
 
         # Make a POST request to exchange the authorization code for an access token
         response = requests.post(auth_options['url'], data=auth_options['data'], headers=auth_options['headers'])
@@ -96,13 +99,19 @@ def spotify_callback():
         # "refresh_token": "NgAagA...Um_SHo"
         # }
 
-        print(token_data)
+        print("TOKEN DATA: ", token_data)
 
-        session['access_token'] = token_data['access_token']
-        session['refresh_token'] = token_data['refresh_token']
-        session['expires_at'] = datetime.now().timestamp() + token_data['expires_in']
+    #     # session['access_token'] = token_data['access_token']
+    #     # session['refresh_token'] = token_data['refresh_token']
+    #     # session['expires_at'] = datetime.now().timestamp() + token_data['expires_in']
 
-        return redirect("/profile")
+    #     # print(session)
+
+        # should redirect to home page... doesn't work and stays at the callback url w/ code and state...
+        return redirect("http://localhost:3000")
+
+    # # for postman testing...
+    # return {"ok": "it works"}
 
 
 @spotify_routes.route('/refresh_token')

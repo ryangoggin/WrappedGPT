@@ -1,5 +1,4 @@
 import { useDispatch } from 'react-redux';
-import { spotifyLogin } from "../../store/spotify";
 import './SpotifyLoginButton.css';
 import { useEffect, useState } from 'react';
 
@@ -15,9 +14,8 @@ function SpotifyLoginButton() {
     }, [])
 
     const handleClick = async(e) => {
-        e.preventDefault();
-        await dispatch(spotifyLogin());
-        // window.location.href = '/api/spotify/login';
+        // to avoid CORS error by hitting Spotify login route w/ thunk, use direct backend address (works locally for now)
+        window.location.href = 'http://localhost:5000/api/spotify/login';
     }
 
     return (
