@@ -17,6 +17,7 @@ function SpotifyLoginButton() {
     const handleClick = async(e) => {
         e.preventDefault();
         await dispatch(spotifyLogin());
+        // window.location.href = '/api/spotify/login';
     }
 
     return (
